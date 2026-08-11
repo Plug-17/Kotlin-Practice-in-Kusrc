@@ -77,27 +77,27 @@ fun MyApp(){
     var nacontroller = rememberNavController()
     var selection by remember { mutableStateOf(0) }
     val items = arrayOf("Home","Cart","Notification")
-    val icon = listOf(R.drawable.ic_launcher_foreground,
-        R.drawable.ic_launcher_foreground,R.drawable.ic_launcher_foreground)
+    val icon = listOf(R.drawable.home,
+        R.drawable.grocery_store,R.drawable.notification)
     Scaffold(
         topBar = {
             TopAppBar(
               colors =  TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Green,
+                    containerColor = Color.Yellow,
                     titleContentColor = Color.Blue
                 ),
                 title = {Text("MyApp")},
                 navigationIcon = {IconButton(onClick = {}) {
                     Icon(painter = painterResource(R.drawable.ic_launcher_foreground),
                         contentDescription = null,
-                        tint = Color.Green
+                        tint = Color.Blue
                         )
 
                 }},
                 actions = {
                     IconButton(onClick = {}) {
                         Icon(painter = painterResource(R.drawable.ic_launcher_foreground),
-                            contentDescription = null,
+                            contentDescription = "ball",
                             tint = Color.Green
                         )
 
@@ -123,7 +123,7 @@ fun MyApp(){
             ) {
                 items.forEachIndexed { index, items ->
                     NavigationBarItem(
-                        icon = {Icon(painter = painterResource(icon[index]), contentDescription = items)},
+                        icon = {Icon(painter = painterResource(icon[index]), contentDescription = items, modifier = Modifier.size(24.dp))},
                         selected  = selection == index,
                         onClick = {selection = index
                         when(index){
@@ -219,7 +219,7 @@ fun HomeScreen(toShowScreen: (String) -> Unit) {
         var checkbox by remember { mutableStateOf(false) }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = checkbox, onCheckedChange = {checkbox  = it})
+            Checkbox(checked = checkbox, onCheckedChange = {checkbox  = it}) // it จะเปลี่ยนค่าใหม่
             Text("message remember")
         }
         Text(if (checkbox) "choose data" else "not data")
