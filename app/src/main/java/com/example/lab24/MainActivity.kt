@@ -88,24 +88,24 @@ fun MyApp(){
                 ),
                 title = {Text("MyApp")},
                 navigationIcon = {IconButton(onClick = {}) {
-                    Icon(painter = painterResource(R.drawable.ic_launcher_foreground),
+                    Icon(painter = painterResource(R.drawable.boy),
                         contentDescription = null,
-                        tint = Color.Blue
+                        tint = Color.Blue, modifier = Modifier.size(24.dp)
                         )
 
                 }},
                 actions = {
                     IconButton(onClick = {}) {
-                        Icon(painter = painterResource(R.drawable.ic_launcher_foreground),
+                        Icon(painter = painterResource(R.drawable.blood_drop),
                             contentDescription = "ball",
-                            tint = Color.Green
+                            tint = Color.Green,modifier = Modifier.size(24.dp)
                         )
 
                     }
                     IconButton(onClick = {}) {
-                        Icon(painter = painterResource(R.drawable.ic_launcher_foreground),
+                        Icon(painter = painterResource(R.drawable.rocket),
                             contentDescription = null,
-                            tint = Color.Green
+                            tint = Color.Green,modifier = Modifier.size(24.dp)
                         )
 
                     }
