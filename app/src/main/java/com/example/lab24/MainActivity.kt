@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Button
@@ -45,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.lab24.ui.theme.Lab24Theme
@@ -243,6 +246,7 @@ fun NoteScreen(onBack: () -> Unit) {
         var date  = rememberTextFieldState()
         var showDatePicker by remember { mutableStateOf(false) }
         val interaction  = remember { MutableInteractionSource() }
+        val selectedDatemills by remember { mutableStateOf<Long?> (null) }
         LaunchedEffect(interaction) {
             interaction.interactions.collect { interaction ->
                 if(interaction is PressInteraction.Release) {
@@ -265,6 +269,13 @@ fun NoteScreen(onBack: () -> Unit) {
                     )
                 }
             },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            state = description,
+            label = {Text("รายละเอียดถ้ามี")},
+            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 2),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -310,6 +321,15 @@ fun NoteScreen(onBack: () -> Unit) {
                 Spacer(Modifier.width(10.dp))
                 Button(onClick = {
                     if(title.text.isBlank()) titleError = true
+                    else{
+                        titleError = false
+                        viewModel.insertTodo(
+                            title = title.text.toString(),
+                            description = description.text.toString().ifBlank { null },
+                            date  = selectedDatemills?: System.currentTimeMillis()
+                        )
+                        onBack()
+                    }
                 }) {Text("บันทึก") }
             }
         }
