@@ -2,7 +2,6 @@
 
 package com.example.lab24
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -45,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -188,40 +187,53 @@ fun MyApp() {
     }*/
 
 
-        val navController = rememberNavController()
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Red,
-                        titleContentColor = Color.White
-                    ),
-                    title = {Text("To Do List")}
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {navController.navigate("noteForm")},
-                    shape = CircleShape
-                ) {
-                    Icon(painter = painterResource(R.drawable.ic_launcher_foreground), contentDescription = "Add")
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        ) {innerPaddding ->
-            NavHost(
-                navController = navController,
-                startDestination = "home",
-                modifier = Modifier.padding(innerPaddding)
+    val navController = rememberNavController()
+    val context  = LocalContext.current
+    val viewModel:TodoViewModel =  viewModel(
+        factory = TodoViewModelFactory(context)
+    )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Red,
+                    titleContentColor = Color.White
+                ),
+                title = { Text("To Do List") }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate("noteForm") },
+                shape = CircleShape
             ) {
-                composable("home") { HomeScreen() }
-                composable("noteForm") { NoteScreen(
-                    onBack = {navController.popBackStack()}
-                ) }
+                Icon(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "Add"
+                )
+            }
+        },
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("home") { HomeScreen() }
+            composable("noteForm") {
+                NoteScreen(
+                    onBack = { navController.popBackStack()},
+                    viewModel = viewModel
+                )
+
+
+
 
             }
         }
 
+    }
 }
 @Composable
 fun  HomeScreen(){
@@ -232,9 +244,9 @@ fun  HomeScreen(){
     ) {Text("หน้าเเรก") }
 }
 
-@SuppressLint("RememberReturnType")
+
 @Composable
-fun NoteScreen(onBack: () -> Unit) {
+fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Top
@@ -335,6 +347,8 @@ fun NoteScreen(onBack: () -> Unit) {
         }
     }
 }
+
+
 
 
 
