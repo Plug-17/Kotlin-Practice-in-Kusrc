@@ -208,7 +208,7 @@ fun MyApp() {
                 shape = CircleShape
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    painter = painterResource(R.drawable.rocket),
                     contentDescription = "Add"
                 )
             }
@@ -258,7 +258,7 @@ fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
         var date  = rememberTextFieldState()
         var showDatePicker by remember { mutableStateOf(false) }
         val interaction  = remember { MutableInteractionSource() }
-        val selectedDatemills by remember { mutableStateOf<Long?> (null) }
+        var selectedDatemills by remember { mutableStateOf<Long?> (null) }
         LaunchedEffect(interaction) {
             interaction.interactions.collect { interaction ->
                 if(interaction is PressInteraction.Release) {
@@ -314,6 +314,7 @@ fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
                             mills -> date.setTextAndPlaceCursorAtEnd(
                                 dateFormat.format(Date(mills))
                             )
+                            selectedDatemills = mills
                         }
                         showDatePicker = false
 
@@ -329,7 +330,7 @@ fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            FilledTonalButton(onClick = { onBack()}) {
+            FilledTonalButton(onClick = { onBack()}) {Text("ยกเลิก")}
                 Spacer(Modifier.width(10.dp))
                 Button(onClick = {
                     if(title.text.isBlank()) titleError = true
