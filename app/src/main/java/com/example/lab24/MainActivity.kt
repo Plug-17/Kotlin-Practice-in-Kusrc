@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -189,8 +190,8 @@ fun MyApp() {
 
     val navController = rememberNavController()
     val context  = LocalContext.current
-    val viewModel:TodoViewModel =  viewModel(
-        factory = TodoViewModelFactory(context)
+    val viewModel:MyAppviewModel=  viewModel(
+        factory = MyappviewModelFactory(context)
     )
     Scaffold(
         topBar = {
@@ -209,7 +210,7 @@ fun MyApp() {
             ) {
                 Icon(
                     painter = painterResource(R.drawable.rocket),
-                    contentDescription = "Add"
+                    contentDescription = "Add", modifier = Modifier.size(25.dp)
                 )
             }
         },
@@ -246,7 +247,7 @@ fun  HomeScreen(){
 
 
 @Composable
-fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
+fun NoteScreen(onBack: () -> Unit, viewModel: MyAppviewModel) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Top
@@ -267,7 +268,7 @@ fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
             }
         }
 
-        val dateFormat = remember { SimpleDateFormat("D MMM yyyy", Locale("th")) }
+        val dateFormat = remember { SimpleDateFormat("d MMM yyyy", Locale("th")) }
 
         OutlinedTextField(
             state = title,
@@ -336,7 +337,7 @@ fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
                     if(title.text.isBlank()) titleError = true
                     else{
                         titleError = false
-                        viewModel.insertTodo(
+                        viewModel.insertMyapp(
                             title = title.text.toString(),
                             description = description.text.toString().ifBlank { null },
                             date  = selectedDatemills?: System.currentTimeMillis()
@@ -347,7 +348,7 @@ fun NoteScreen(onBack: () -> Unit, viewModel: TodoViewModel) {
             }
         }
     }
-}
+
 
 
 
