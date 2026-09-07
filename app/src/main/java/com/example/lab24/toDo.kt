@@ -38,7 +38,7 @@ interface  myAppDao{
     fun getAll(): Flow<List<myAppEntity>>
 
     @Delete
-    suspend fun  delete(myAppEntity: myAppEntity)
+    suspend fun delete(myAppEntity: myAppEntity)
 
     @Update
     suspend fun update(myAppEntity: myAppEntity)

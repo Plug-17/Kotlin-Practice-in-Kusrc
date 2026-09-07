@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.lab24.ui.theme.Lab24Theme
@@ -221,8 +222,8 @@ fun MyApp() {
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeScreen() }
-            composable("noteForm") {
+            composable("home") { HomeScreen(viewModel = viewModel,navController) }
+            composable("noteForm",) {
                 NoteScreen(
                     onBack = { navController.popBackStack()},
                     viewModel = viewModel
@@ -237,12 +238,18 @@ fun MyApp() {
     }
 }
 @Composable
-fun  HomeScreen(){
+fun  HomeScreen(viewModel: MyAppviewModel,navController: NavController){
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {Text("หน้าเเรก") }
+    ) {
+        val dateFormatter = remember { SimpleDateFormat("d MMM yyyy", Locale("th")) }
+        val myapplist by viewmodel.Myappall.collectAsState(initial = emptyList())
+        var itemDelete by remember { mutableStateOf<MyAppEntity?>(null) }
+        var itemEdit by remember { mutableStateOf<MyAppEntity?>(null) }
+
+    }
 }
 
 
