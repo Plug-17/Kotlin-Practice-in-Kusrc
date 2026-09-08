@@ -16,10 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -37,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -225,7 +230,7 @@ fun MyApp() {
             composable("home") { HomeScreen(viewModel = viewModel,navController) }
             composable("noteForm",) {
                 NoteScreen(
-                    onBack = { navController.popBackStack()},
+                    onBack = { viewModel.selectNoteForEdit(null);navController.popBackStack()},
                     viewModel = viewModel
                 )
 
@@ -245,9 +250,57 @@ fun  HomeScreen(viewModel: MyAppviewModel,navController: NavController){
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val dateFormatter = remember { SimpleDateFormat("d MMM yyyy", Locale("th")) }
-        val myapplist by viewmodel.Myappall.collectAsState(initial = emptyList())
-        var itemDelete by remember { mutableStateOf<MyAppEntity?>(null) }
-        var itemEdit by remember { mutableStateOf<MyAppEntity?>(null) }
+        val myapplist by viewModel.Myappall.collectAsState(initial = emptyList())
+        var itemDelete by remember { mutableStateOf<myAppEntity?>(null) }
+        var itemEdit by remember { mutableStateOf<myAppEntity?>(null) }
+
+        LazyColumn {
+            items(myapplist) {myapps ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    IconButton(onClick = {itemEdit  = myapps}) {
+                        Icon(painter = painterResource(R.drawable.rocket), contentDescription = "Edit", tint = Color.Green)
+                    }
+
+                    IconButton(onClick = {itemDelete = myapps}) {
+                        Icon(painter = painterResource(R.drawable.rocket), contentDescription = "Edit", tint = Color.Green)
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        myapps.description?.let { desc ->
+                            Text(text = desc)
+                        }
+                        Text(text = dateFormatter.format(Date(myapps.date)))
+                    }
+
+                }
+            }
+        }
+
+        itemEdit?.let { myappEdit ->
+            viewModel.selectNoteForEdit(myappEdit)
+            navController.navigate("noteForm")
+        }
+
+        itemDelete?.let { myappDelete ->
+            AlertDialog(
+                onDismissRequest =  {itemDelete = null},
+                title = {Text("ยืนยันการลบ")},
+                text = {Text("แน่ใจว่าต้องการลบรายการ")},
+                confirmButton = {
+                    TextButton(onClick = {viewModel.deleteMyApp(myappDelete)}
+                    ) {Text("ตกลง") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {itemDelete = null}) {Text("ยกเลิก") }
+                }
+            )
+        }
+
 
     }
 }
@@ -267,6 +320,23 @@ fun NoteScreen(onBack: () -> Unit, viewModel: MyAppviewModel) {
         var showDatePicker by remember { mutableStateOf(false) }
         val interaction  = remember { MutableInteractionSource() }
         var selectedDatemills by remember { mutableStateOf<Long?> (null) }
+        val selectnote  = viewModel.selectionNote
+        val dateFormatter = remember { SimpleDateFormat("d MMM yyyy", Locale("th")) }
+
+        LaunchedEffect(selectnote) {
+            selectnote?.let { note ->
+                title.setTextAndPlaceCursorAtEnd(note.title)
+
+                description.setTextAndPlaceCursorAtEnd(note.description?:"")
+
+                date.setTextAndPlaceCursorAtEnd(dateFormatter.format(Date(note.date)))
+
+                selectedDatemills = note.date
+            }
+
+        }
+
+
         LaunchedEffect(interaction) {
             interaction.interactions.collect { interaction ->
                 if(interaction is PressInteraction.Release) {
