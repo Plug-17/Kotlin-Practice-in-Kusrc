@@ -51,7 +51,7 @@ fun HistoryScreen(
     onEditClick: (String) -> Unit,
     modifier:  Modifier = Modifier) {
     val orders = listOf(
-        "001" to Triple("M", 2, "หวาน 25 %"),
+       "001" to Triple("M", 2, "หวาน 25 %"),
         "002" to Triple("S", 3, "เพิ่มไข่มุก"),
         "003" to Triple("L", 2, "-")
     )
