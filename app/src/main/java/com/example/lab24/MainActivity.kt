@@ -33,6 +33,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -102,7 +103,7 @@ fun MyApp(modifier: Modifier = Modifier){
                     title = { Text("Shop App") },
                     actions = {
                         IconButton(onClick = {}) {
-                            Icon(painter = painterResource(R.drawable.shopping_cart_24px),
+                            Icon(painter = painterResource(R.drawable.grocery_store),
                                 contentDescription = null, tint = Color.White)
                         }
                     }
@@ -141,7 +142,7 @@ fun MyApp(modifier: Modifier = Modifier){
                         containerColor = Color(0xFF6D9E51)
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.add_24px),
+                            painter = painterResource(R.drawable.plus),
                             contentDescription = "สั่งเพิ่ม",
                             tint = Color.White
                         )
@@ -175,15 +176,7 @@ fun MyApp(modifier: Modifier = Modifier){
 
 
 
-@Composable
-fun NavigationBarItem(
-    icon: @Composable () -> Unit,
-    selected: Boolean,
-    onClick: () -> Unit,
-    colors: NavigationBarItemColors
-) {
-    TODO("Not yet implemented")
-}
+
 
 @Composable
     fun HomeScreen(modifier: Modifier = Modifier) {

@@ -66,11 +66,11 @@ fun EditOrderScreen(orderID: String,onBack:()-> Unit,modifier: Modifier = Modifi
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {if(qty > 1) qty--}) {
-                Icon(painter = painterResource(R.drawable.))
+                Icon(painter = painterResource(R.drawable.plus), contentDescription = "add")
             }
             Text(qty.toString(), fontSize = 18.sp)
             IconButton(onClick = {qty++}) {
-                Icon(painter = painterResource(R.drawable.))
+                Icon(painter = painterResource(R.drawable.minus_sign), contentDescription = "delete")
             }
         }
 

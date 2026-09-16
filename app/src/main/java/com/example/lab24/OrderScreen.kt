@@ -42,7 +42,7 @@ fun OrderScreen(onOrderClick:() -> Unit,modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth().padding(16.dp)
     ) {
         Image(
-            painter = painterResource(R.drawable.),
+            painter = painterResource(R.drawable.ic_launcher_background),
             contentScale = ContentScale.FillWidth,
             contentDescription = null,
             modifier = Modifier.fillMaxWidth().height(200.dp)
@@ -81,11 +81,11 @@ fun OrderScreen(onOrderClick:() -> Unit,modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             IconButton(onClick = {if(qty > 1) qty--}) {
-                Icon(painter = painterResource(R.drawable.))
+                Icon(painter = painterResource(R.drawable.minus_sign), contentDescription = "delete")
             }
             Text(qty.toString(), fontSize = 18.sp)
             IconButton(onClick = {qty++}) {
-                Icon(painter = painterResource(R.drawable.))
+                Icon(painter = painterResource(R.drawable.plus), contentDescription = "add")
             }
         }
 

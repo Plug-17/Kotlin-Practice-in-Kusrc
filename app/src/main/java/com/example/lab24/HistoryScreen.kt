@@ -123,7 +123,7 @@ fun HistoryScreen(
                                         )
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.),
+                                        painter = painterResource(R.drawable.plus),
                                         contentDescription = "Edit",
                                         tint = Color.White
                                     )
@@ -141,7 +141,7 @@ fun HistoryScreen(
                                         )
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.),
+                                        painter = painterResource(R.drawable.minus_sign),
                                         contentDescription = "Delete",
                                         tint = Color.White
                                     )
