@@ -1,6 +1,5 @@
 package com.example.lab24
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,15 +19,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
-import androidx.compose.remote.creation.dsl.first
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,65 +35,67 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun HistoryScreen(
     onEditClick: (String) -> Unit,
-    modifier:  Modifier = Modifier) {
-    val orders = listOf(
-       "001" to Triple("M", 2, "หวาน 25 %"),
-        "002" to Triple("S", 3, "เพิ่มไข่มุก"),
-        "003" to Triple("L", 2, "-")
-    )
+    modifier: Modifier = Modifier) {
+    //------------------- dummy ข้อมูล -------------------
+//    val orders = listOf(
+//        "001" to Triple("M", 2, "หวาน 25%"),
+//        "002" to Triple("S", 3, "เพิ่มไขมุก"),
+//        "003" to Triple("L", 2, "-")
+//    )
+    val orderVm = viewModel<OrderViewModel> ()
+    val orders by orderVm.orders.collectAsState(initial = emptyList())
 
     var itemToDelete by remember {
-        mutableStateOf<Pair<String, Triple<String, Int, String?>>?>(null)
+        mutableStateOf<Order?>(null)
     }
-
     var openedItemId by remember { mutableStateOf<String?>(null) }
+
     Column(
-        modifier = modifier.fillMaxWidth().padding(16.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Text("ประวัติการสั่งซื้อ", fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
 
         if (orders.isEmpty()) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("ยังไม่มีการสั่งซื้อ", color = Color.Green)
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("ยังไม่มีการสั่งซื้อ", color = Color.Gray)
             }
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(orders, key = { it.first }) { order ->
-                    val dismissState =
-                        rememberSwipeToDismissBoxState(confirmValueChange = { value ->
+                items(orders, key = { it.id }) { order ->
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
                             when (value) {
                                 SwipeToDismissBoxValue.EndToStart -> {
-                                    openedItemId = order.first
+                                    openedItemId = order.id
                                 }
-
                                 SwipeToDismissBoxValue.Settled -> {
-                                    if (openedItemId == order.first) openedItemId = null
+                                    if (openedItemId == order.id) openedItemId = null
                                 }
-
                                 else -> {}
                             }
                             true
-                        })
-
+                        }
+                    )
                     LaunchedEffect(openedItemId) {
-                        if (openedItemId != order.first && dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
+                        if (openedItemId != order.id &&
+                            dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
                             dismissState.snapTo(SwipeToDismissBoxValue.Settled)
                         }
                     }
-
-                    // swipe ปุ่มเเก้ไข/ลบ
+                    //------------------- Swipe ปุ่มแก้ไข/ลบ -------------------
                     val scope = rememberCoroutineScope()
                     SwipeToDismissBox(
                         state = dismissState,
@@ -114,7 +113,7 @@ fun HistoryScreen(
                                 IconButton(
                                     onClick = {
                                         scope.launch { dismissState.snapTo(SwipeToDismissBoxValue.Settled) }
-                                        onEditClick(order.first)
+                                        onEditClick(order.id)
                                     },
                                     modifier = Modifier
                                         .background(
@@ -123,7 +122,7 @@ fun HistoryScreen(
                                         )
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.plus),
+                                        painter = painterResource(R.drawable.blood_drop),
                                         contentDescription = "Edit",
                                         tint = Color.White
                                     )
@@ -132,8 +131,7 @@ fun HistoryScreen(
                                 IconButton(
                                     onClick = {
                                         scope.launch { dismissState.snapTo(SwipeToDismissBoxValue.Settled) }
-                                        itemToDelete = order
-                                    },
+                                        itemToDelete = order },
                                     modifier = Modifier
                                         .background(
                                             Color(0xFFF44336),
@@ -141,7 +139,7 @@ fun HistoryScreen(
                                         )
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.minus_sign),
+                                        painter = painterResource(R.drawable.blood_drop),
                                         contentDescription = "Delete",
                                         tint = Color.White
                                     )
@@ -149,24 +147,28 @@ fun HistoryScreen(
                             }
                         },
                         content = { OrderCard(order = order) }
-
-
                     )
                 }
             }
-
+            //------------------- Popup ยืนยันการลบ -------------------
             itemToDelete?.let { order ->
                 AlertDialog(
-                    onDismissRequest = {itemToDelete = null},
-                    title =  {Text("ยืนยันการลบ")},
-                    text = {Text("เเน่ใจว่าต้องการลบรายการนี้")},
+                    onDismissRequest = { itemToDelete = null },
+                    title = { Text("ยืนยันการลบ") },
+                    text = { Text("แน่ใจว่าต้องการลบรายการนี้") },
                     confirmButton = {
                         TextButton(
-                            onClick = {itemToDelete = null}
-                        ) { Text("ลบ")}
+
+                            onClick = {
+                                orderVm.deleteOrder(order.id)
+                                itemToDelete = null}
+
+                        ) { Text("ลบ") }
                     },
                     dismissButton = {
-                        TextButton(onClick = {itemToDelete = null}) { Text("ยกเลิก")}
+                        TextButton(
+                            onClick = { itemToDelete = null }
+                        ) { Text("ยกเลิก") }
                     }
                 )
             }
@@ -174,8 +176,9 @@ fun HistoryScreen(
     }
 }
 
+//------------------- แสดงข้อมูลบนการ์ด -------------------
 @Composable
-fun OrderCard(order: Pair<String, Triple<String, Int, String?>>) {
+fun OrderCard(order: Order) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -185,9 +188,9 @@ fun OrderCard(order: Pair<String, Triple<String, Int, String?>>) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("ขนาด: ${order.second.first}", fontWeight = FontWeight.Bold)
-                Text("จำนวน: ${order.second.second}")
-                Text("หมายเหตุ: ${order.second.third ?: "-"}", color = Color.Gray)
+                Text("ขนาด: ${order.size}", fontWeight = FontWeight.Bold)
+                Text("จำนวน: ${order.qty}")
+                Text("หมายเหตุ: ${order.note ?: "-"}", color = Color.Gray)
             }
         }
     }
