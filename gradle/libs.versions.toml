@@ -12,7 +12,6 @@ remoteCreationCore = "1.0.0-alpha19"
 material3 = "1.4.0"
 foundationLayout = "1.12.1"
 firebaseCommonKtx = "22.2.1"
-
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

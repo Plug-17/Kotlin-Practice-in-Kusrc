@@ -90,7 +90,7 @@ fun MyApp(modifier: Modifier = Modifier){
         val navController = rememberNavController()
         var selectedItem by remember { mutableStateOf(0) }
         val items = listOf("Home", "History")
-        val iconsmenu = listOf(R.drawable.ic_launcher_foreground, R.drawable.rocket)
+        val iconsmenu = listOf(R.drawable.home, R.drawable.grocery_store)
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         Scaffold(
@@ -118,7 +118,7 @@ fun MyApp(modifier: Modifier = Modifier){
                         NavigationBarItem(
                             icon = {
                                 Icon(painter = painterResource(iconsmenu[index]),
-                                    contentDescription = item) },
+                                    contentDescription = item,modifier = Modifier.size(24.dp)) },
                             selected = selectedItem == index,
                             onClick = { selectedItem = index
                                 when(index) {
@@ -144,7 +144,7 @@ fun MyApp(modifier: Modifier = Modifier){
                         Icon(
                             painter = painterResource(R.drawable.plus),
                             contentDescription = "สั่งเพิ่ม",
-                            tint = Color.White
+                            tint = Color.White, modifier = Modifier.size(24.dp)
                         )
                     }
                 }
