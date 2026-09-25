@@ -1,5 +1,7 @@
 package com.example.lab24
 
+import android.content.Context
+import android.credentials.GetCredentialException
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +31,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +48,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.GoogleAuthProvider
 
 @Composable
 fun LoginScreen(
@@ -56,7 +66,19 @@ fun LoginScreen(
     val context = LocalContext.current
     var showForgotDialog by remember { mutableStateOf(false) }
     var resetEmail = rememberTextFieldState()
+    var resetPassword  = rememberTextFieldState()
+    val authVm = viewModel<AuthViewModel> ()
+    val authState by authVm.authState.collectAsState()
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthViewModel.AuthState.Success -> {
+                authVm.resetState()
+                onLoginSuccess()
+            }
 
+            else -> {}
+        }
+    }
     if (showForgotDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -79,7 +101,11 @@ fun LoginScreen(
             },
             confirmButton = {
                 TextButton(
-                    onClick = {  },
+                    onClick = {
+                        authVm.resetPassword(resetEmail.text.toString())
+                        showForgotDialog = false
+                        resetEmail.clearText()
+                    },
                     enabled = resetEmail.text.isNotBlank(),
                 ) { Text("ส่ง Email", color = Color(0xFF6D9E51)) }
             },
@@ -151,7 +177,11 @@ fun LoginScreen(
 
         //------------------- ปุ่มเข้าสู่ระบบ -------------------
         Button(
-            onClick = { },
+            onClick = {
+                authVm.loginWithEmail(
+                    email.text.toString(),password.text.toString()
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -213,7 +243,7 @@ fun LoginScreen(
 //            }
 //        }
         OutlinedButton (
-            onClick = { },
+            onClick = { authVm.loginWithGoogle(context)},
             modifier = Modifier.fillMaxWidth().height(50.dp),
             shape = RoundedCornerShape(8.dp),
             border = BorderStroke(1.dp, Color.LightGray)

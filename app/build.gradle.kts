@@ -61,10 +61,25 @@ dependencies {
     // Room
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
     ksp("androidx.room:room-compiler:2.8.4")
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.9.6")
+    implementation("androidx.credentials:credentials:1.6.0-rc01")
+    implementation("androidx.credentials:credentials-play-services-auth:1.6.0-rc01")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+// Coroutines & Lifecycle ViewModel
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
+// Coil for AsyncImage
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     testImplementation(libs.junit)
 
