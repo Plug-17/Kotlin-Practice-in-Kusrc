@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -93,106 +94,144 @@ fun MyApp(modifier: Modifier = Modifier){
         val iconsmenu = listOf(R.drawable.home, R.drawable.grocery_store)
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF6D9E51),
-                        titleContentColor = Color(0xFFFEFFD3)
-                    ),
-                    title = { Text("Shop App") },
-                    actions = {
-                        IconButton(onClick = {}) {
-                            Icon(painter = painterResource(R.drawable.grocery_store),
-                                contentDescription = null, tint = Color.White)
+    val auVM = viewModel<AuthViewModel>()
+    val startDestination = if(auVM.isLoggedIn) "home" else "login"
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF6D9E51),
+                    titleContentColor = Color(0xFFFEFFD3)
+                ),
+                title = { Text("Shop App") },
+                actions = {
+                    IconButton(onClick = {
+                        auVM.logout()
+                        navController.navigate("login"){
+                            popUpTo("home"){  inclusive = true}
                         }
+                    }) {
+                        Icon(painter = painterResource(R.drawable.shopping_cart_24px),
+                            contentDescription = null, tint = Color.White)
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            NavigationBar(
+                containerColor = Color(0xFF6D9E51),
+                contentColor = Color(0xFFFEFFD3)
+            ) {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(painter = painterResource(iconsmenu[index]),
+                                contentDescription = item, modifier = Modifier.size(25.dp)) },
+                        selected = selectedItem == index,
+                        onClick = { selectedItem = index
+                            when(index) {
+                                0 -> navController.navigate("home")
+                                1 -> navController.navigate("history")
+                            }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color.White,
+                            unselectedIconColor = Color.White,
+                            indicatorColor = Color(0xFFCDB885)
+                        )
+                    )
+                }
+            }
+        },
+        floatingActionButton = {
+            if(currentRoute == "home" || currentRoute == "history") {
+                FloatingActionButton(
+                    onClick = { navController.navigate("order") },
+                    containerColor = Color(0xFF6D9E51)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.plus),
+                        contentDescription = "สั่งเพิ่ม",
+                        tint = Color.White,
+                        modifier =  Modifier.size(25.dp)
+                    )
+
+                }
+
+            }
+        },
+
+
+
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("login") {
+                LoginScreen(
+                    onLoginSuccess = {
+                        navController.navigate("home") {
+                            popUpTo("login") {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onNavigateToRegister = {
+                        navController.navigate("register")
                     }
                 )
-            },
-            bottomBar = {
-                NavigationBar(
-                    containerColor = Color(0xFF6D9E51),
-                    contentColor = Color(0xFFFEFFD3)
-                ) {
-                    items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon = {
-                                Icon(painter = painterResource(iconsmenu[index]),
-                                    contentDescription = item,modifier = Modifier.size(24.dp)) },
-                            selected = selectedItem == index,
-                            onClick = { selectedItem = index
-                                when(index) {
-                                    0 -> navController.navigate("home")
-                                    1 -> navController.navigate("history")
-                                }
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color.White,
-                                unselectedIconColor = Color.White,
-                                indicatorColor = Color(0xFFCDB885)
-                            )
-                        )
+            }
+
+            composable("register") {
+                RegisterScreen(
+                    onRegisterSuccess = {
+                        navController.navigate("home") {
+                            popUpTo("register") {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onNavigateToLogin = {
+                        navController.popBackStack()
                     }
+                )
+            }
+
+
+            composable("home") { HomeScreen() }
+            composable("order") { OrderScreen(
+                onOrderClick = { navController.navigate("history") }
+            ) }
+            composable("history") { HistoryScreen(
+                onEditClick = { orderId ->
+                    navController.navigate("edit_order/$orderId")
                 }
-            },
-            floatingActionButton = {
-                if(currentRoute == "home" || currentRoute == "history") {
-                    FloatingActionButton(
-                        onClick = { navController.navigate("order") },
-                        containerColor = Color(0xFF6D9E51)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.plus),
-                            contentDescription = "สั่งเพิ่ม",
-                            tint = Color.White, modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = "home",
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable("home") { HomeScreen() }
-                composable("order") { OrderScreen(
-                    onOrderClick = { navController.navigate("history") }
-                ) }
-                composable("history") { HistoryScreen(
-                    onEditClick = { orderId ->
-                        navController.navigate("edit_order/$orderId")
-                    }
-                ) }
-                composable("edit_order/{orderid}",
-                    arguments = listOf(navArgument("orderid") { type = NavType.StringType })) {
-                        stackEntry -> val orderid = stackEntry.arguments?.getString("orderid") ?: ""
-                    EditOrderScreen(orderID = orderid, onBack = { navController.popBackStack() } )
-                }
+            ) }
+            composable("edit_order/{orderid}",
+                arguments = listOf(navArgument("orderid") { type = NavType.StringType })) {
+                    stackEntry -> val orderid = stackEntry.arguments?.getString("orderid") ?: ""
+                EditOrderScreen(orderID = orderid, onBack = { navController.popBackStack() } )
+
             }
         }
     }
-
-
-
-
+}
 
 @Composable
-    fun HomeScreen(modifier: Modifier = Modifier) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("หน้าแรก")
-            }
+fun HomeScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("หน้าแรก")
         }
     }
-
-
-
+}
 
 
 

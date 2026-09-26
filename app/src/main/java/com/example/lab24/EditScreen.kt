@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,15 +31,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Composable
 fun EditOrderScreen(orderID: String,onBack:()-> Unit,modifier: Modifier = Modifier){
     val radioOption = listOf("S","M","L")
+    val orderVm  = viewModel<OrderViewModel>()
+    val orderState by orderVm.getOrderById(orderID).collectAsStateWithLifecycle(initialValue = null)
     var selectedOption by remember { mutableStateOf("M") }
     var qty by remember { mutableStateOf(1) }
     var note = rememberTextFieldState()
 
+
+    LaunchedEffect(orderState) {
+        orderState?.let { order ->
+            selectedOption = order.size
+            qty = order.qty
+            note.edit { replace(0,length,order.note?:"") }
+
+
+        }
+    }
     Column(
         modifier = modifier.fillMaxSize().padding(16.dp)
 
@@ -66,11 +81,11 @@ fun EditOrderScreen(orderID: String,onBack:()-> Unit,modifier: Modifier = Modifi
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {if(qty > 1) qty--}) {
-                Icon(painter = painterResource(R.drawable.plus), contentDescription = "add")
+                Icon(painter = painterResource(R.drawable.minus_sign), contentDescription = "add")
             }
             Text(qty.toString(), fontSize = 18.sp)
             IconButton(onClick = {qty++}) {
-                Icon(painter = painterResource(R.drawable.minus_sign), contentDescription = "delete")
+                Icon(painter = painterResource(R.drawable.plus), contentDescription = "delete")
             }
         }
 
@@ -90,6 +105,13 @@ fun EditOrderScreen(orderID: String,onBack:()-> Unit,modifier: Modifier = Modifi
             ) { Text("ยกเลิก")}
             Button(
                 onClick = {
+                    val updateOrder = Order(
+                        id = orderID,
+                        size = selectedOption,
+                        qty = qty,
+                        note = note.text.toString()
+                    )
+                    orderVm.updateOrder(updateOrder)
                     onBack()
                 },
                 modifier = Modifier.weight(1f),

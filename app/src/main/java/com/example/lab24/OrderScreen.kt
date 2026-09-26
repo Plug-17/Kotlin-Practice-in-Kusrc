@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,35 +31,41 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun OrderScreen(onOrderClick:() -> Unit,modifier: Modifier = Modifier) {
-    val radioOptions = listOf("S","M","L")
+fun OrderScreen(onOrderClick: () -> Unit, modifier: Modifier = Modifier) {
+    val radioOptions = listOf("S", "M", "L")
     var note = rememberTextFieldState()
     var qty by remember { mutableStateOf(1) }
-    var  selectionOption by remember { mutableStateOf(radioOptions[0]) }
+    var selectedOption by remember { mutableStateOf(radioOptions[0]) }
+    val orderVm = viewModel<OrderViewModel> ()
 
     Column(
-        modifier = modifier.fillMaxWidth().padding(16.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_background),
             contentScale = ContentScale.FillWidth,
             contentDescription = null,
-            modifier = Modifier.fillMaxWidth().height(200.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
         )
         Spacer(Modifier.height(15.dp))
-        Text("ชานมข้าวห้อม", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text("ชานมข้าวหอม", fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Text("Rice Milk Tea")
         Spacer(Modifier.height(15.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
-            Text("ขนาด")
+            Text("ขนาด:")
             Spacer(Modifier.width(width = 10.dp))
             radioOptions.forEach { option ->
                 Row {
                     RadioButton(
-                        selected = (selectionOption == option),
-                        onClick = {selectionOption = option}
+                        selected = (selectedOption == option),
+                        onClick = { selectedOption = option }
                     )
                     Spacer(Modifier.width(width = 5.dp))
                     Text(text = option)
@@ -66,32 +73,39 @@ fun OrderScreen(onOrderClick:() -> Unit,modifier: Modifier = Modifier) {
                 }
             }
         }
-
-        Spacer(Modifier.height(15.dp))
+        Spacer(Modifier.height(height = 15.dp))
         Text("รายละเอียดเพิ่มเติม:")
         OutlinedTextField(
             state = note,
-            label = {Text("เช่น หวานน้อย,เพิ่มช็อต")},
+            label = { Text("เช่น หวานน้อย, เพิ่มช็อต") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(15.dp))
-        Text("จำนวน")
+        Spacer(Modifier.height(height = 15.dp))
+        Text("จำนวน:")
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            IconButton(onClick = {if(qty > 1) qty--}) {
-                Icon(painter = painterResource(R.drawable.minus_sign), contentDescription = "delete")
+            IconButton(onClick = { if(qty > 1) qty-- } ) {
+                Icon(painter = painterResource(R.drawable.minus_sign), contentDescription = "Remove")
             }
-            Text(qty.toString(), fontSize = 18.sp)
-            IconButton(onClick = {qty++}) {
-                Icon(painter = painterResource(R.drawable.plus), contentDescription = "add")
+            Text(text = qty.toString())
+            IconButton(onClick = { qty++ } ) {
+                Icon(painter = painterResource(R.drawable.plus), contentDescription = "Add")
             }
         }
+        Spacer(Modifier.height(height = 15.dp))
 
-        Spacer(Modifier.height(15.dp))
-
+        //------------ ปุ่มใส่ตะกร้า ------------
         Button(onClick = {
+            val noteText = note.text.toString().trim().ifEmpty { null }
+
+            orderVm.insertOrder(
+                size = selectedOption,
+                qty =  qty,
+                note = noteText
+            )
+
             onOrderClick()
         },
             modifier = Modifier
@@ -104,6 +118,5 @@ fun OrderScreen(onOrderClick:() -> Unit,modifier: Modifier = Modifier) {
         ) {
             Text("ใส่ตะกร้า")
         }
-
     }
 }

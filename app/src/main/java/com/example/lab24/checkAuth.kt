@@ -1,6 +1,7 @@
 package com.example.lab24
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -89,43 +90,69 @@ class AuthViewModel : ViewModel() {
 
 
 
-        fun loginWithGoogle(context: Context) {
-            viewModelScope.launch {
-                _authState.value = AuthViewModel.AuthState.Loading
-                try {
-                    val credentialManager = CredentialManager.create(context)
+    fun loginWithGoogle(context: Context) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
 
-                    val signInWithGoogleOption = GetSignInWithGoogleOption
-                        .Builder("317923424636-tpa2pb4ovlqefgu2hmf3egbgav0a1s7s.apps.googleusercontent.com") //https://console.cloud.google.com/auth/clients
-                        .build()
+            try {
+                Log.d("GoogleLogin", "Start Google Login")
 
-                    val request = GetCredentialRequest.Builder()
-                        .addCredentialOption(signInWithGoogleOption)
-                        .build()
+                val credentialManager = CredentialManager.create(context)
 
-                    val result = credentialManager.getCredential(
-                        request = request,
-                        context = context
-                    )
+                val signInWithGoogleOption =
+                    GetSignInWithGoogleOption.Builder(
+                        "317923424636-tpa2pb4ovlqefgu2hmf3egbgav0a1s7s.apps.googleusercontent.com"
+                    ).build()
 
-                    val credential = result.credential
-                    if (credential is CustomCredential &&
-                        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                    ) {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        val firebaseCredential = GoogleAuthProvider.getCredential(
-                            googleIdTokenCredential.idToken, null
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(signInWithGoogleOption)
+                    .build()
+
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = context
+                )
+
+                val credential = result.credential
+
+                if (
+                    credential is CustomCredential &&
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                ) {
+
+                    Log.d("GoogleLogin", "Google credential received")
+
+                    val googleIdTokenCredential =
+                        GoogleIdTokenCredential.createFrom(credential.data)
+
+                    val firebaseCredential =
+                        GoogleAuthProvider.getCredential(
+                            googleIdTokenCredential.idToken,
+                            null
                         )
-                        auth.signInWithCredential(firebaseCredential).await()
-                        _authState.value = AuthViewModel.AuthState.Success
-                    }
 
-                } catch (e: GetCredentialException) {
-                    _authState.value = AuthViewModel.AuthState.Error("Error: ${e.message}")
+                    auth.signInWithCredential(firebaseCredential).await()
+
+                    Log.d("GoogleLogin", "Firebase login success")
+
+                    _authState.value = AuthState.Success
+                } else {
+                    Log.e("GoogleLogin", "Credential type invalid")
+                    _authState.value =
+                        AuthState.Error("Credential type invalid")
                 }
+
+            } catch (e: GetCredentialException) {
+                Log.e("GoogleLogin", "GetCredentialException", e)
+                _authState.value =
+                    AuthState.Error(e.message ?: "GetCredentialException")
+            } catch (e: Exception) {
+                Log.e("GoogleLogin", "Unknown Exception", e)
+                _authState.value =
+                    AuthState.Error(e.message ?: "Unknown Error")
             }
         }
-
+    }
 
 
 
